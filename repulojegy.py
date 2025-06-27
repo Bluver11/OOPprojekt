@@ -37,6 +37,7 @@ class LegiTarsasag:
     def __init__(self, nev: str):
         self.nev = nev
         self.jaratok = []
+        self.foglalasok = []
 
     def jarat_hozzaad(self, jarat: Jarat):
         self.jaratok.append(jarat)
