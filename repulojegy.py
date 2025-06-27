@@ -50,34 +50,34 @@ class LegiTarsasag:
      try:
          jarat = self.jaratok[jarat_index - 1]
          if not jarat.elerheto:
-            print("❌ Ez a járat nem elérhető foglalásra.")
+            print("Ez a járat nem elérhető foglalásra.")
             return
 
          datum = datetime.strptime(datum_str, "%Y-%m-%d")
          if datum < datetime.today():
-            print("❌ Nem foglalható múltbeli dátumra.")
+            print("Nem foglalható múltbeli dátumra.")
             return
 
          foglalas = JegyFoglalas(utas_nev, jarat, datum_str)
          self.foglalasok.append(foglalas)
-         print(f"\n✅ Foglalás sikeres! Ár: {jarat.jegyar} Ft")
+         print(f"\nFoglalás sikeres! Ár: {jarat.jegyar} Ft")
 
      except IndexError:
-        print("❌ Hibás járatindex!")
+        print("Hibás járatindex!")
      except ValueError as ve:
-        print(f"❌ Hibás dátum: {ve}")
+        print(f"Hibás dátum: {ve}")
 
     def foglalas_lemondas(self, utas_nev: str, jaratszam: str):
      for f in self.foglalasok:
         if f.utas_nev == utas_nev and f.jarat.jaratszam == jaratszam:
             self.foglalasok.remove(f)
-            print(f"❎ Foglalás törölve: {utas_nev} - {jaratszam}")
+            print(f"Foglalás törölve: {utas_nev} - {jaratszam}")
             return
-    print("❌ Nincs ilyen foglalás!")
+    print("Nincs ilyen foglalás!")
 
     def listaz_foglalasokat(self):
         if not self.foglalasok:
-            print("ℹ️ Nincs aktív foglalás.")
+            print("ℹNincs aktív foglalás.")
         for f in self.foglalasok:
             print(f.foglalas_info())
 
@@ -135,9 +135,8 @@ if __name__ == "__main__":
     airline.foglalasok.append(JegyFoglalas("Farkas Dóra", j3, d1))
     airline.foglalasok.append(JegyFoglalas("Kiss Péter", j3, d3))
 
-    print("📦 Előre betöltött adatok: 1 légitársaság, 3 járat, 6 foglalás.")
+    print("Előre betöltött adatok: 1 légitársaság, 3 járat, 6 foglalás.")
 
-    print("📦 Előre betöltött adatok: 1 légitársaság, 3 járat, 6 foglalás.")
     while True:
         menu()
         valasztas = input("Választás: ")
@@ -153,7 +152,7 @@ if __name__ == "__main__":
                 datum = input("Utazás dátuma (ÉÉÉÉ-HH-NN): ")
                 airline.jegyet_foglal(nev, index,datum)
             except ValueError:
-                print("❌ Érvénytelen bemenet.")
+                print("Érvénytelen bemenet.")
 
         elif valasztas == "3":
             nev = input("Add meg a nevet a lemondáshoz: ")
@@ -164,8 +163,8 @@ if __name__ == "__main__":
             airline.listaz_foglalasokat()
 
         elif valasztas == "0":
-            print("👋 Kilépés...")
+            print("Kilépés...")
             break
 
         else:
-            print("❌ Érvénytelen opció.")
+            print("Érvénytelen opció.")
