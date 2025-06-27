@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime ,timedelta
 
 # Absztrakt Járat osztály
 class Jarat(ABC):
