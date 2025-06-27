@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 # Absztrakt Járat osztály
 class Jarat(ABC):
@@ -6,6 +7,7 @@ class Jarat(ABC):
         self.jaratszam = jaratszam
         self.celallomas = celallomas
         self.jegyar = jegyar
+        self.elerheto = True 
 
     @abstractmethod
     def jarat_tipus(self):
@@ -43,22 +45,34 @@ class LegiTarsasag:
         for jarat in self.jaratok:
             print(f"{jarat.jaratszam} - {jarat.celallomas} ({jarat.jarat_tipus()}), Ár: {jarat.jegyar} Ft")
         
-    def jegyet_foglal(self, utas_nev: str, jarat_index: int):
-        try:
-            jarat = self.jaratok[jarat_index - 1]
-            foglalas = JegyFoglalas(utas_nev, jarat)
-            self.foglalasok.append(foglalas)
-            print(f"\n✅ Foglalás sikeres! Ár: {jarat.jegyar} Ft")
-        except IndexError:
-            print("❌ Hibás járatindex!")
+    def jegyet_foglal(self, utas_nev: str, jarat_index: int, datum_str: str):
+     try:
+         jarat = self.jaratok[jarat_index - 1]
+         if not jarat.elerheto:
+            print("❌ Ez a járat nem elérhető foglalásra.")
+            return
 
-    def foglalas_lemondas(self, utas_nev: str):
-        for f in self.foglalasok:
-            if f.utas_nev == utas_nev:
-                self.foglalasok.remove(f)
-                print(f"❎ Foglalás törölve: {utas_nev}")
-                return
-        print("❌ Nincs ilyen nevű foglalás!")
+         datum = datetime.strptime(datum_str, "%Y-%m-%d")
+         if datum < datetime.today():
+            print("❌ Nem foglalható múltbeli dátumra.")
+            return
+
+         foglalas = JegyFoglalas(utas_nev, jarat, datum_str)
+         self.foglalasok.append(foglalas)
+         print(f"\n✅ Foglalás sikeres! Ár: {jarat.jegyar} Ft")
+
+     except IndexError:
+        print("❌ Hibás járatindex!")
+     except ValueError as ve:
+        print(f"❌ Hibás dátum: {ve}")
+
+    def foglalas_lemondas(self, utas_nev: str, jaratszam: str):
+     for f in self.foglalasok:
+        if f.utas_nev == utas_nev and f.jarat.jaratszam == jaratszam:
+            self.foglalasok.remove(f)
+            print(f"❎ Foglalás törölve: {utas_nev} - {jaratszam}")
+            return
+    print("❌ Nincs ilyen foglalás!")
 
     def listaz_foglalasokat(self):
         if not self.foglalasok:
@@ -69,13 +83,19 @@ class LegiTarsasag:
 
 # Jegyfoglalás osztály
 class JegyFoglalas:
-    def __init__(self, utas_nev: str, jarat: Jarat):
+    def __init__(self, utas_nev: str, jarat: Jarat, datum_str: str):
         self.utas_nev = utas_nev
         self.jarat = jarat
+        try:
+            self.datum = datetime.strptime(datum_str, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("Hibás dátumformátum! (várható: ÉÉÉÉ-HH-NN)")
 
     def foglalas_info(self):
+        datum_str = self.datum.strftime("%Y-%m-%d")
         return (f"Foglalás: {self.utas_nev} számára a(z) {self.jarat.jarat_tipus()} "
-                f"járatra ({self.jarat.jaratszam}) - {self.jarat.celallomas}, Ár: {self.jarat.jegyar} Ft")
+                f"járatra ({self.jarat.jaratszam}) - {self.jarat.celallomas}, "
+                f"Dátum: {datum_str}, Ár: {self.jarat.jegyar} Ft")
 
 def menu():
     print("\n=== Légitársaság Jegyfoglaló Rendszer ===")
@@ -105,13 +125,15 @@ if __name__ == "__main__":
             try:
                 index = int(input("Melyik járatra szeretne foglalni? (sorszám): "))
                 nev = input("Utas neve: ")
-                airline.jegyet_foglal(nev, index)
+                datum = input("Utazás dátuma (ÉÉÉÉ-HH-NN): ")
+                airline.jegyet_foglal(nev, index,datum)
             except ValueError:
                 print("❌ Érvénytelen bemenet.")
 
         elif valasztas == "3":
             nev = input("Add meg a nevet a lemondáshoz: ")
-            airline.foglalas_lemondas(nev)
+            jaratszam = input("Add meg a járatszámot: ")
+            airline.foglalas_lemondas(nev,jaratszam)
 
         elif valasztas == "4":
             airline.listaz_foglalasokat()
